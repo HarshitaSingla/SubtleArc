@@ -80,11 +80,5 @@
   <p *ngIf="backendResponse" style="margin-top: 10px;">{{ backendResponse }}</p>
 
   <!-- 🗺️ Leaflet Map Container -->
-  <div
-    style="height: 500px; margin-top: 20px;"
-    leaflet
-    [leafletOptions]="options"
-    (leafletMapReady)="onMapReady($event)"
-  ></div>
+  <div id="map" style="height: 500px; margin-top: 20px;"></div>
 </div>
-
