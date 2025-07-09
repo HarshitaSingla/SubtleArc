@@ -1,36 +1,3 @@
-<!-- <div style="padding: 20px;">
-  <h2>Hello from Backend</h2>
-  <p>Enter Ellipse Parameters</p>
-
-  <form (ngSubmit)="submitEllipse()" #ellipseForm="ngForm">
-    <label>Semi-Major Axis:</label>
-    <input type="number" [(ngModel)]="ellipseInput.semiMajor" name="semiMajor" required /><br />
-
-    <label>Semi-Minor Axis:</label>
-    <input type="number" [(ngModel)]="ellipseInput.semiMinor" name="semiMinor" required /><br />
-
-    <label>Center X (Longitude):</label>
-    <input type="number" [(ngModel)]="ellipseInput.centerX" name="centerX" required /><br />
-
-    <label>Center Y (Latitude):</label>
-    <input type="number" [(ngModel)]="ellipseInput.centerY" name="centerY" required /><br />
-
-    <button type="submit">Generate Bézier Curve</button>
-  </form>
-  <button (click)="drawEllipse()">Draw Ellipse & Check Elevation</button>
-
-
-
-  <p *ngIf="backendResponse">{{ backendResponse }}</p>
-
-  🗺️ Leaflet Map Container -->
-  <!-- <div style="height: 500px; margin-top: 20px;"
-       leaflet
-       [leafletOptions]="options"
-       (leafletMapReady)="onMapReady($event)">
-  </div>
-</div> -->
-
 <div style="padding: 20px;">
   <h2>Hello from Backend</h2>
   <p>Enter Ellipse Parameters</p>
@@ -80,5 +47,5 @@
   <p *ngIf="backendResponse" style="margin-top: 10px;">{{ backendResponse }}</p>
 
   <!-- 🗺️ Leaflet Map Container -->
-  <div id="map" style="height: 500px; margin-top: 20px;"></div>
+  <div id="mymap" style="height: 500px; margin-top: 20px;"></div>
 </div>
