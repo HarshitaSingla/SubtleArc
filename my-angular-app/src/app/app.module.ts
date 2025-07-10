@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { AppComponent } from './app.component';
     HttpClientModule,
     FormsModule,
     AppRoutingModule,
-    LeafletModule
+    LeafletModule,
+    CommonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

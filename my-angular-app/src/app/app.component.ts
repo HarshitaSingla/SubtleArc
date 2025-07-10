@@ -1,21 +1,489 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import * as L from 'leaflet';
-import { EllipseService } from './ellipse.service';
+//drawing just bezier curve
+//10 JULY 2025
 
-interface EditablePolyline extends L.Polyline {
-  enableEdit: () => void;
-}
+
+// import { Component, AfterViewInit } from '@angular/core';
+// import * as L from 'leaflet';
+// import { HttpClient } from '@angular/common/http';
+// import { EllipseService } from './ellipse.service';
+
+// @Component({
+//   selector: 'app-root',
+//   templateUrl: './app.component.html',
+//   styleUrls: ['./app.component.css'],
+// })
+// export class AppComponent implements AfterViewInit {
+//   ellipseInput = {
+//     semiMajor: 0,
+//     semiMinor: 0,
+//     centerX: 0,
+//     centerY: 0,
+//   };
+
+//   backendResponse: string = '';
+//   map: L.Map | undefined;
+//   bezierBoundaryPoints: L.LatLng[] = [];
+//   readonly elevationThreshold = 3000; // meters
+
+//   constructor(private http: HttpClient, private ellipseService: EllipseService) {}
+
+//   ngAfterViewInit(): void {
+//     this.initMap();
+//   }
+
+//   private initMap(): void {
+//     this.map = L.map('map').setView([20.5937, 78.9629], 5); // Default to India
+
+//     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//       attribution: 'Map data © OpenStreetMap contributors',
+//     }).addTo(this.map);
+//   }
+
+//   submitEllipse() {
+//     this.http.post<any>('http://localhost:8081/bezier', this.ellipseInput).subscribe({
+//       next: (response) => {
+//         this.backendResponse = 'Bézier curve received.';
+//         const bezierSegments = response.bezierCurve;
+//         if (!this.map) return;
+
+//         // Clear previous layers
+//         this.map.eachLayer((layer) => {
+//           if ((layer as any)._path || layer instanceof L.CircleMarker || layer instanceof L.Polyline) {
+//             if (!(layer as any)._url) {
+//               this.map!.removeLayer(layer);
+//             }
+//           }
+//         });
+
+//         this.bezierBoundaryPoints = []; // Reset
+
+//         const zoom = this.map.getZoom();
+//         const steps = Math.max(4, Math.floor(zoom * 1.5));
+
+//         bezierSegments.forEach((segment: any) => {
+//           if (!Array.isArray(segment) || segment.length !== 4) return;
+
+//           const interpolated = this.interpolateBezier(segment, steps);
+//           const latLngs = interpolated.map(([x, y]) => L.latLng(y, x));
+//           this.bezierBoundaryPoints.push(...latLngs);
+
+//           // Draw curve on map
+//           L.polyline(latLngs, {
+//             color: 'blue',
+//             weight: 2,
+//             smoothFactor: 1,
+//           }).addTo(this.map!);
+//         });
+
+//         if (this.bezierBoundaryPoints.length > 0) {
+//           const bounds = L.latLngBounds(this.bezierBoundaryPoints);
+//           this.map.fitBounds(bounds, { padding: [20, 20] });
+//         }
+//       },
+//       error: (err) => {
+//         console.error('Error fetching Bézier segments:', err);
+//         this.backendResponse = 'Failed to fetch Bézier segments.';
+//       },
+//     });
+//   }
+
+//   drawEllipse() {
+//     if (!this.map || this.bezierBoundaryPoints.length === 0) {
+//       alert('Please generate the ellipse before checking elevation.');
+//       return;
+//     }
+
+//     this.backendResponse = 'Checking elevation...';
+
+//     this.bezierBoundaryPoints.forEach((point) => {
+//       this.ellipseService.getElevationStatus(point.lat, point.lng).subscribe({
+//         next: (res) => {
+//           const color = res.elevation > this.elevationThreshold ? 'red' : 'green';
+
+//           L.circleMarker([point.lat, point.lng], {
+//             radius: 5,
+//             color,
+//             fillColor: color,
+//             fillOpacity: 0.9,
+//           }).addTo(this.map!);
+//         },
+//         error: (err) => {
+//           console.error(`Elevation check failed at (${point.lat}, ${point.lng})`, err);
+//         },
+//       });
+//     });
+
+//     this.backendResponse = 'Elevation check complete.';
+//   }
+
+//   interpolateBezier(segment: any[], steps: number): number[][] {
+//     const [p0, p1, p2, p3] = segment;
+//     const points = [];
+
+//     for (let t = 0; t <= 1; t += 1 / steps) {
+//       const x =
+//         Math.pow(1 - t, 3) * p0[0] +
+//         3 * Math.pow(1 - t, 2) * t * p1[0] +
+//         3 * (1 - t) * t * t * p2[0] +
+//         t * t * t * p3[0];
+
+//       const y =
+//         Math.pow(1 - t, 3) * p0[1] +
+//         3 * Math.pow(1 - t, 2) * t * p1[1] +
+//         3 * (1 - t) * t * t * p2[1] +
+//         t * t * t * p3[1];
+
+//       points.push([x, y]);
+//     }
+
+//     return points;
+//   }
+// }
+
+
+
+
+
+// import { Component, AfterViewInit } from '@angular/core';
+// import * as L from 'leaflet';
+// import 'leaflet-editable';
+// import { HttpClient } from '@angular/common/http';
+// import { EllipseService } from './ellipse.service';
+
+// @Component({
+//   selector: 'app-root',
+//   templateUrl: './app.component.html',
+//   styleUrls: ['./app.component.css'],
+// })
+// export class AppComponent implements AfterViewInit {
+//   ellipseInput = {
+//     semiMajor: 0,
+//     semiMinor: 0,
+//     centerX: 0,
+//     centerY: 0,
+//   };
+
+//   backendResponse: string = '';
+//   map!: L.Map;
+//   editablePolygon!: L.Polygon;
+//   bezierBoundaryPoints: L.LatLng[] = [];
+//   readonly elevationThreshold = 3000; // meters
+
+//   constructor(private http: HttpClient, private ellipseService: EllipseService) {}
+
+//   ngAfterViewInit(): void {
+//     this.initMap();
+//   }
+
+//   private initMap(): void {
+//     this.map = L.map('map', {
+//   // any other default options here
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// } as any).setView([20.5937, 78.9629], 5);
+
+// // Enable editing explicitly (needed by leaflet-editable)
+// (this.map as any).editable = true;
+
+//     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//       attribution: 'Map data © OpenStreetMap contributors',
+//     }).addTo(this.map);
+//   }
+
+//   submitEllipse(): void {
+//     this.http.post<any>('http://localhost:8081/bezier', this.ellipseInput).subscribe({
+//       next: (response) => {
+//         this.backendResponse = 'Bézier curve received.';
+//         const bezierSegments = response.bezierCurve;
+//         if (!this.map) return;
+
+//         // Remove previous curve and editable polygon if any
+//         this.map.eachLayer((layer) => {
+//           if ((layer as any)._path || layer instanceof L.CircleMarker || layer instanceof L.Polyline || layer instanceof L.Polygon) {
+//             if (!(layer as any)._url) {
+//               this.map!.removeLayer(layer);
+//             }
+//           }
+//         });
+
+//         this.bezierBoundaryPoints = [];
+
+//         const zoom = this.map.getZoom();
+//         const steps = Math.max(16, Math.floor(zoom * 3)); // smooth
+
+//         bezierSegments.forEach((segment: any) => {
+//           if (!Array.isArray(segment) || segment.length !== 4) return;
+
+//           const interpolated = this.interpolateBezier(segment, steps);
+//           const latLngs = interpolated.map(([x, y]) => L.latLng(y, x));
+//           this.bezierBoundaryPoints.push(...latLngs);
+//         });
+
+//         // Create editable polygon with smooth boundary
+//         this.editablePolygon = L.polygon(this.bezierBoundaryPoints, {
+//           color: 'purple',
+//           weight: 2,
+//         }).addTo(this.map);
+
+//         this.editablePolygon.enableEdit();
+
+//         this.editablePolygon.on('editable:vertex:dragend', () => {
+//           const updatedPoints = this.editablePolygon!.getLatLngs()[0] as L.LatLng[];
+//           console.log('Updated points:', updatedPoints);
+//         });
+
+//         if (this.bezierBoundaryPoints.length > 0) {
+//           const bounds = L.latLngBounds(this.bezierBoundaryPoints);
+//           this.map.fitBounds(bounds, { padding: [20, 20] });
+//         }
+//       },
+//       error: (err) => {
+//         console.error('Error fetching Bézier segments:', err);
+//         this.backendResponse = 'Failed to fetch Bézier segments.';
+//       },
+//     });
+//   }
+
+//   drawEllipse(): void {
+//     if (!this.map || this.bezierBoundaryPoints.length === 0) {
+//       alert('Please generate the ellipse before checking elevation.');
+//       return;
+//     }
+
+//     this.backendResponse = 'Checking elevation...';
+
+//     this.bezierBoundaryPoints.forEach((point) => {
+//       this.ellipseService.getElevationStatus(point.lat, point.lng).subscribe({
+//         next: (res) => {
+//           const color = res.elevation > this.elevationThreshold ? 'red' : 'green';
+
+//           L.circleMarker([point.lat, point.lng], {
+//             radius: 5,
+//             color,
+//             fillColor: color,
+//             fillOpacity: 0.9,
+//           }).addTo(this.map!);
+//         },
+//         error: (err) => {
+//           console.error(`Elevation check failed at (${point.lat}, ${point.lng})`, err);
+//         },
+//       });
+//     });
+
+//     this.backendResponse = 'Elevation check complete.';
+//   }
+
+//   interpolateBezier(segment: any[], steps: number): number[][] {
+//     const [p0, p1, p2, p3] = segment;
+//     const points = [];
+
+//     for (let t = 0; t <= 1; t += 1 / steps) {
+//       const x =
+//         Math.pow(1 - t, 3) * p0[0] +
+//         3 * Math.pow(1 - t, 2) * t * p1[0] +
+//         3 * (1 - t) * t * t * p2[0] +
+//         t * t * t * p3[0];
+
+//       const y =
+//         Math.pow(1 - t, 3) * p0[1] +
+//         3 * Math.pow(1 - t, 2) * t * p1[1] +
+//         3 * (1 - t) * t * t * p2[1] +
+//         t * t * t * p3[1];
+
+//       points.push([x, y]);
+//     }
+
+//     return points;
+//   }
+// }
+
+
+
+
+
+
+//with editable vertices
+
+// import { Component, AfterViewInit } from '@angular/core';
+// import * as L from 'leaflet';
+// import { HttpClient } from '@angular/common/http';
+// import { EllipseService } from './ellipse.service';
+
+// @Component({
+//   selector: 'app-root',
+//   templateUrl: './app.component.html',
+//   styleUrls: ['./app.component.css'],
+// })
+// export class AppComponent implements AfterViewInit {
+//   ellipseInput = {
+//     semiMajor: 0,
+//     semiMinor: 0,
+//     centerX: 0,
+//     centerY: 0,
+//   };
+
+//   backendResponse: string = '';
+//   map!: L.Map;
+//   ellipsePolygon!: L.Polygon;
+//   bezierBoundaryPoints: L.LatLng[] = [];
+//   controlMarkers: L.CircleMarker[] = [];
+//   readonly elevationThreshold = 3000; // meters
+
+//   constructor(private http: HttpClient, private ellipseService: EllipseService) {}
+
+//   ngAfterViewInit(): void {
+//     this.initMap();
+//   }
+
+//   private initMap(): void {
+//     this.map = L.map('map').setView([20.5937, 78.9629], 5);
+//     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+//       attribution: 'Map data © OpenStreetMap contributors',
+//     }).addTo(this.map);
+//   }
+
+//   submitEllipse(): void {
+//     this.http.post<any>('http://localhost:8081/bezier', this.ellipseInput).subscribe({
+//       next: (response) => {
+//         this.backendResponse = 'Bézier curve received.';
+
+//         const bezierSegments = response.bezierCurve;
+//         if (!this.map) return;
+
+//         // Remove previous polygon and control markers
+//         if (this.ellipsePolygon) this.map.removeLayer(this.ellipsePolygon);
+//         this.controlMarkers.forEach(marker => this.map.removeLayer(marker));
+//         this.controlMarkers = [];
+
+//         this.bezierBoundaryPoints = [];
+
+//         const zoom = this.map.getZoom();
+//         const steps = Math.max(16, Math.floor(zoom * 3)); // smooth
+
+//         bezierSegments.forEach((segment: any) => {
+//           if (!Array.isArray(segment) || segment.length !== 4) return;
+
+//           const interpolated = this.interpolateBezier(segment, steps);
+//           const latLngs = interpolated.map(([x, y]) => L.latLng(y, x));
+//           this.bezierBoundaryPoints.push(...latLngs);
+//         });
+
+//         this.ellipsePolygon = L.polygon(this.bezierBoundaryPoints, {
+//           color: 'purple',
+//           weight: 2,
+//           fillColor: 'violet',
+//           fillOpacity: 0.4,
+//         }).addTo(this.map);
+
+//         // Add draggable control points (circle markers)
+//         this.bezierBoundaryPoints.forEach((point, index) => {
+//           const marker = L.circleMarker(point, {
+//             radius: 5,
+//             color: 'blue',
+//             fillColor: 'white',
+//             fillOpacity: 1,
+//             weight: 2,
+//           }).addTo(this.map);
+
+//           marker.on('mousedown', (e: any) => {
+//             const moveHandler = (event: any) => {
+//               marker.setLatLng(event.latlng);
+//               this.bezierBoundaryPoints[index] = event.latlng;
+//               this.ellipsePolygon.setLatLngs([this.bezierBoundaryPoints]);
+//             };
+
+//             const upHandler = () => {
+//               this.map.off('mousemove', moveHandler);
+//               this.map.off('mouseup', upHandler);
+//             };
+
+//             this.map.on('mousemove', moveHandler);
+//             this.map.on('mouseup', upHandler);
+//           });
+
+//           this.controlMarkers.push(marker);
+//         });
+
+//         if (this.bezierBoundaryPoints.length > 0) {
+//           const bounds = L.latLngBounds(this.bezierBoundaryPoints);
+//           this.map.fitBounds(bounds, { padding: [20, 20] });
+//         }
+//       },
+//       error: (err) => {
+//         console.error('Error fetching Bézier segments:', err);
+//         this.backendResponse = 'Failed to fetch Bézier segments.';
+//       },
+//     });
+//   }
+
+//   drawEllipse(): void {
+//     if (!this.map || this.bezierBoundaryPoints.length === 0) {
+//       alert('Please generate the ellipse before checking elevation.');
+//       return;
+//     }
+
+//     this.backendResponse = 'Checking elevation...';
+
+//     this.bezierBoundaryPoints.forEach((point) => {
+//       this.ellipseService.getElevationStatus(point.lat, point.lng).subscribe({
+//         next: (res) => {
+//           const color = res.elevation > this.elevationThreshold ? 'red' : 'green';
+
+//           L.circleMarker([point.lat, point.lng], {
+//             radius: 5,
+//             color,
+//             fillColor: color,
+//             fillOpacity: 0.9,
+//           }).addTo(this.map!);
+//         },
+//         error: (err) => {
+//           console.error(`Elevation check failed at (${point.lat}, ${point.lng})`, err);
+//         },
+//       });
+//     });
+
+//     this.backendResponse = 'Elevation check complete.';
+//   }
+
+//   interpolateBezier(segment: any[], steps: number): number[][] {
+//     const [p0, p1, p2, p3] = segment;
+//     const points = [];
+
+//     for (let t = 0; t <= 1; t += 1 / steps) {
+//       const x =
+//         Math.pow(1 - t, 3) * p0[0] +
+//         3 * Math.pow(1 - t, 2) * t * p1[0] +
+//         3 * (1 - t) * t * t * p2[0] +
+//         t * t * t * p3[0];
+
+//       const y =
+//         Math.pow(1 - t, 3) * p0[1] +
+//         3 * Math.pow(1 - t, 2) * t * p1[1] +
+//         3 * (1 - t) * t * t * p2[1] +
+//         t * t * t * p3[1];
+
+//       points.push([x, y]);
+//     }
+
+//     return points;
+//   }
+// }
+
+
+
+
+
+
+import { Component, AfterViewInit } from '@angular/core';
+import * as L from 'leaflet';
+import { HttpClient } from '@angular/common/http';
+import { EllipseService } from './ellipse.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit {
-  backendMessage: string = '';
-  backendResponse: string = '';
-
+export class AppComponent implements AfterViewInit {
   ellipseInput = {
     semiMajor: 0,
     semiMinor: 0,
@@ -23,225 +491,139 @@ export class AppComponent implements OnInit {
     centerY: 0,
   };
 
-  map: L.Map | null = null;
+  backendResponse: string = '';
+  map!: L.Map;
+  ellipsePolygon!: L.Polygon;
+  bezierBoundaryPoints: L.LatLng[] = [];
+  controlMarkers: L.Marker[] = [];
+  readonly elevationThreshold = 3000; // meters
 
   constructor(private http: HttpClient, private ellipseService: EllipseService) {}
 
-  ngOnInit() {
-    this.map = L.map('mymap').setView([20.5937, 78.9629], 7);
-    L.tileLayer('assets/tiles/{z}/{x}/{y}.png', {
-      minZoom: 2,
-      maxZoom: 3,
-      attribution: '© OpenStreetMap contributors',
+  ngAfterViewInit(): void {
+    this.initMap();
+  }
+
+  private initMap(): void {
+    this.map = L.map('map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © OpenStreetMap contributors',
     }).addTo(this.map);
-
-    (this.map as any).editable = true;
-
-    if (!(this.map as any).editTools && (L as any).Editable) {
-      (this.map as any).editTools = new (L as any).Editable(this.map);
-    }
-
-    this.loadLeafletEditableSafely();
   }
 
-  loadLeafletEditableSafely() {
-    let attempts = 0;
-    const maxAttempts = 50;
-    const checkEditableLoaded = () => {
-      if ((L as any).Editable) {
-        console.log('✅ Leaflet.Editable is available.');
-      } else {
-        if (attempts < maxAttempts) {
-          attempts++;
-          console.warn(`⏳ Waiting for Leaflet.Editable... attempt ${attempts}`);
-          setTimeout(checkEditableLoaded, 200);
-        } else {
-          console.error('❌ Leaflet.Editable failed to load after max attempts.');
-        }
-      }
-    };
-    checkEditableLoaded();
-  }
-
-  submitEllipse() {
+  submitEllipse(): void {
     this.http.post<any>('http://localhost:8081/bezier', this.ellipseInput).subscribe({
-      next: (response: any) => {
-        this.backendResponse = 'Bezier curve data received.';
-        const bezierSegments = response.bezierCurve;
+      next: (response) => {
+        this.backendResponse = 'Bézier curve received.';
 
+        const bezierSegments = response.bezierCurve;
         if (!this.map) return;
 
-        this.map.eachLayer((layer) => {
-          if ((layer as any)._path || layer instanceof L.Polyline) {
-            if (!(layer as any)._url) {
-              this.map!.removeLayer(layer);
-            }
-          }
-        });
+        // Remove previous polygon and control markers
+        if (this.ellipsePolygon) this.map.removeLayer(this.ellipsePolygon);
+        this.controlMarkers.forEach(marker => this.map.removeLayer(marker));
+        this.controlMarkers = [];
 
-        const editTools = (this.map as any).editTools;
-        if (!editTools || typeof editTools.startPolyline !== 'function') {
-          console.error('❌ editTools or startPolyline not available.');
-          return;
-        }
+        this.bezierBoundaryPoints = [];
 
-        const allLatLngs: L.LatLng[] = [];
         const zoom = this.map.getZoom();
-        const steps = Math.max(10, Math.floor(zoom * 2)); // More steps for smoother curve
+        const steps = Math.max(16, Math.floor(zoom * 3)); // smooth
 
-        bezierSegments.forEach((segment: any, index: number) => {
-          if (!Array.isArray(segment) || segment.length !== 4) {
-            console.warn(`Skipping invalid segment [${index}]`, segment);
-            return;
-          }
+        bezierSegments.forEach((segment: any) => {
+          if (!Array.isArray(segment) || segment.length !== 4) return;
 
           const interpolated = this.interpolateBezier(segment, steps);
           const latLngs = interpolated.map(([x, y]) => L.latLng(y, x));
-          allLatLngs.push(...latLngs);
+          this.bezierBoundaryPoints.push(...latLngs);
         });
 
-        if (allLatLngs.length > 0) {
-          // Close the loop
-          allLatLngs.push(allLatLngs[0]);
+        this.ellipsePolygon = L.polygon(this.bezierBoundaryPoints, {
+          color: 'purple',
+          weight: 2,
+          fillColor: 'violet',
+          fillOpacity: 0.4,
+        }).addTo(this.map);
 
-          const editablePolyline = editTools.startPolyline(allLatLngs, {
-            color: 'blue',
-            weight: 2,
-          }) as EditablePolyline;
+        // Add draggable control points using L.Marker with divIcon
+        this.bezierBoundaryPoints.forEach((point, index) => {
+          const marker = L.marker(point, {
+            draggable: true,
+            icon: L.divIcon({
+              className: 'control-point',
+              iconSize: [12, 12],
+            }),
+          }).addTo(this.map);
 
-          editablePolyline.enableEdit?.();
+          marker.on('drag', (event) => {
+            const newLatLng = event.target.getLatLng();
+            this.bezierBoundaryPoints[index] = newLatLng;
+            this.ellipsePolygon.setLatLngs([this.bezierBoundaryPoints]);
+          });
 
-          allLatLngs.forEach((point) => this.checkElevation(point.lat, point.lng));
+          this.controlMarkers.push(marker);
+        });
 
-          this.map.fitBounds(L.latLngBounds(allLatLngs), { padding: [20, 20] });
+        if (this.bezierBoundaryPoints.length > 0) {
+          const bounds = L.latLngBounds(this.bezierBoundaryPoints);
+          this.map.fitBounds(bounds, { padding: [20, 20] });
         }
       },
-      error: (err: any) => {
+      error: (err) => {
         console.error('Error fetching Bézier segments:', err);
         this.backendResponse = 'Failed to fetch Bézier segments.';
       },
     });
   }
 
-  drawEllipse() {
-    if (!this.map) return;
+  drawEllipse(): void {
+    if (!this.map || this.bezierBoundaryPoints.length === 0) {
+      alert('Please generate the ellipse before checking elevation.');
+      return;
+    }
 
-    const { centerX, centerY, semiMajor, semiMinor } = this.ellipseInput;
-    const center = L.latLng(centerY, centerX);
+    this.backendResponse = 'Checking elevation...';
 
-    this.ellipseService.getElevationStatus(center.lat, center.lng).subscribe({
-      next: (res: any) => {
-        if (!this.map) return;
+    this.bezierBoundaryPoints.forEach((point) => {
+      this.ellipseService.getElevationStatus(point.lat, point.lng).subscribe({
+        next: (res) => {
+          const color = res.elevation > this.elevationThreshold ? 'red' : 'green';
 
-        if (!res.isSafe) {
-          L.circleMarker([center.lat, center.lng], {
-            radius: 8,
-            color: 'red',
-            fillColor: 'red',
+          L.circleMarker([point.lat, point.lng], {
+            radius: 5,
+            color,
+            fillColor: color,
             fillOpacity: 0.9,
-          }).addTo(this.map);
-
-          alert('❌ Elevation too high at center point! Ellipse not drawn.');
-          return;
-        }
-
-        this.map.eachLayer((layer) => {
-          if ((layer as any)._path || layer instanceof L.Polyline || layer instanceof L.CircleMarker) {
-            if (!(layer as any)._url) {
-              this.map!.removeLayer(layer);
-            }
-          }
-        });
-
-        L.circleMarker([center.lat, center.lng], {
-          radius: 8,
-          color: 'green',
-          fillColor: 'green',
-          fillOpacity: 0.9,
-        }).addTo(this.map);
-
-        const ellipseLatLngs: L.LatLng[] = [];
-        for (let angle = 0; angle <= 360; angle += 5) {
-          const rad = (angle * Math.PI) / 180;
-          const dx = semiMajor * Math.cos(rad);
-          const dy = semiMinor * Math.sin(rad);
-
-          const lat = center.lat + dy / 111000;
-          const lng = center.lng + dx / (111000 * Math.cos(center.lat * Math.PI / 180));
-
-          ellipseLatLngs.push(L.latLng(lat, lng));
-        }
-        ellipseLatLngs.push(ellipseLatLngs[0]);
-
-        const ellipsePolyline = L.polyline(ellipseLatLngs, {
-          color: 'blue',
-          weight: 2,
-        }).addTo(this.map);
-
-        this.map.fitBounds(ellipsePolyline.getBounds());
-
-        this.plotInnerPoints(center, semiMajor, semiMinor, 30);
-      },
-      error: (err: any) => {
-        console.error(`Elevation check failed for center (${center.lat}, ${center.lng}):`, err);
-        alert('⚠️ Could not check elevation. Ellipse not drawn.');
-      },
+          }).addTo(this.map!);
+        },
+        error: (err) => {
+          console.error(`Elevation check failed at (${point.lat}, ${point.lng})`, err);
+        },
+      });
     });
+
+    this.backendResponse = 'Elevation check complete.';
   }
 
-  plotInnerPoints(center: L.LatLng, semiMajor: number, semiMinor: number, numPoints: number) {
-    for (let i = 0; i < numPoints; i++) {
-      const theta = 2 * Math.PI * Math.random();
-      const r = Math.sqrt(Math.random());
+  interpolateBezier(segment: any[], steps: number): number[][] {
+    const [p0, p1, p2, p3] = segment;
+    const points = [];
 
-      const x = r * semiMajor * Math.cos(theta);
-      const y = r * semiMinor * Math.sin(theta);
+    for (let t = 0; t <= 1; t += 1 / steps) {
+      const x =
+        Math.pow(1 - t, 3) * p0[0] +
+        3 * Math.pow(1 - t, 2) * t * p1[0] +
+        3 * (1 - t) * t * t * p2[0] +
+        t * t * t * p3[0];
 
-      const lat = center.lat + y / 111000;
-      const lng = center.lng + x / (111000 * Math.cos(center.lat * Math.PI / 180));
+      const y =
+        Math.pow(1 - t, 3) * p0[1] +
+        3 * Math.pow(1 - t, 2) * t * p1[1] +
+        3 * (1 - t) * t * t * p2[1] +
+        t * t * t * p3[1];
 
-      this.checkElevation(lat, lng);
+      points.push([x, y]);
     }
-  }
 
-  checkElevation(lat: number, lon: number) {
-    this.ellipseService.getElevationStatus(lat, lon).subscribe({
-      next: (res: any) => {
-        if (!this.map) return;
-
-        const color = res.isSafe ? 'green' : 'red';
-
-        L.circleMarker([lat, lon], {
-          radius: 6,
-          color,
-          fillColor: color,
-          fillOpacity: 0.9,
-        }).addTo(this.map!);
-      },
-      error: (err: any) => {
-        console.error(`Elevation check failed for (${lat}, ${lon}):`, err);
-      },
-    });
-  }
-
-  interpolateBezier(points: number[][], steps: number): number[][] {
-    const result: number[][] = [];
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const x = this.cubicBezier(t, points[0][0], points[1][0], points[2][0], points[3][0]);
-      const y = this.cubicBezier(t, points[0][1], points[1][1], points[2][1], points[3][1]);
-      result.push([x, y]);
-    }
-    return result;
-  }
-
-  cubicBezier(t: number, p0: number, p1: number, p2: number, p3: number): number {
-    const oneMinusT = 1 - t;
-    return (
-      oneMinusT ** 3 * p0 +
-      3 * oneMinusT ** 2 * t * p1 +
-      3 * oneMinusT * t ** 2 * p2 +
-      t ** 3 * p3
-    );
+    return points;
   }
 }

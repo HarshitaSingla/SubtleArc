@@ -22,3 +22,13 @@ button {
 button:hover {
   background-color: #303f9f;
 }
+
+/* Drag control point marker */
+.control-point {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border: 2px solid blue;
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
